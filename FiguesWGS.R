@@ -190,6 +190,16 @@ for (i in 1:length(laml.titvlist))
    figureTitv=figureTitv[,c("classType","fraction.contribution.C.A","fraction.contribution.C.G","fraction.contribution.C.T","fraction.contribution.T.C","fraction.contribution.T.A","fraction.contribution.T.G")]
    colnames(figureTitv)<-c("classType","C:G>A:T","C:G>G:C","C:G>T:A","T:A>C:G", "T:A>A:T", "T:A>G:C")
    df.m <- melt(figureTitv, id.var = "classType")
+   tgc <- summarySE(df.m, measurevar= "value", groupvars=c("classType","variable"))
+
+   tgc2 <- tgc
+   tgc2$variable <- factor(tgc$variable)
+   ggplot(tgc2, aes(x=variable, y=value, fill=classType)) + 
+     geom_boxplot(position=position_dodge(), stat="identity",ymin=value-se, ymax=value+se) +
+     geom_errorbar(aes(ymin=value-se, ymax=value+se),
+                   width=.2,                    # Width of the error bars
+                   position=position_dodge(.9))
+   
    require(ggplot2)
   #First Trial
    
@@ -198,25 +208,29 @@ for (i in 1:length(laml.titvlist))
   #Trials
    
   #Good 
- #  p1<-ggplot(data = df.m, aes(x=variable, y=value))+geom_boxplot(aes(fill=classType),alpha=0.3)+geom_point(aes(y=value, group=classType,shape=as.factor(classType)),alpha=1,size=1.5, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9),legend.title=element_text(size=10), 
-  #                                                                                                                                                                                  legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "")
-    #                                                                                                                                                                                                                                                       legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "")
-  #Reordered descendingly based on medians and make the fill color grey scale and make the shape of the jitter different
+ #  p1<-ggplot(data = df.m, aes(x=variable, y=value))+geom_boxplot(aes(fill=classType),alpha=0.3)+geom_point(aes(y=value, group=classType,shape=as.factor(classType)),alpha=1,size=1.5, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9),legend.title=element_text(size=10),                                                                                                                                                                                                                                                     legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "")
+ 
    
-   p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1)+theme_bw()+ geom_point(aes(y=value, group=classType,shape=as.factor(classType)),alpha=1,size=0.3, position = position_dodge(width=0.75)) +
+#Reordered descendingly based on medians and make the fill color grey scale and make the shape of the jitter different
+   
+#Best Fit   
+   
+#To add whisker bars we use stat_boxplot and make size so small to see the dots from behind   
+p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
+p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
    scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10), 
  legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 85,label.x.npc="middle",size = 2,  label = "p.format")
    
- 
-   
-  # p1<-ggplot2.boxplot(data=df.m, xName='variable',yName='value', groupName='classType', 
-   #                    position=position_dodge(0.8),
-    #                   backgroundColor="white", groupColors=c('#999999','#E69F00'),
-     #                  addDot=TRUE, dotSize=0.01,legendPosition="top") 
+#p1<-recordPlot()
+#Using the package of the box plots
+   #p1<-ggplot2.boxplot(data=df.m, xName='variable',yName='value', groupName='classType', 
+    #                   position=position_dodge(0.8),
+     #                  backgroundColor="white", groupColors=c('#999999','#E69F00'),
+      #                 addDot=TRUE, dotSize=0.01,legendPosition="top") 
     # p1<- ggplot(data = df.m, aes(x=variable, y=value))+geom_boxplot(aes(fill=classType),alpha=0.3)+geom_jitter(aes(y=value, group=classType),size=0.1) +scale_fill_grey() +theme(axis.text=element_text(size=9),legend.title=element_text(size=10), 
    #                                                                                                                                                                                                                                                     legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "")
                                                                                                                                                                                                                                                         
-
+#------------------------------------
    
    
    #p1<-ggplot(data = df.m, aes(x=variable, y=value))+geom_point(aes(y=value, group=classType,colour=as.factor(classType)),size=5, position = position_dodge(width=0.75)) + geom_boxplot(aes(fill=classType),alpha=0.3,coef=1)+scale_colour_grey()+theme(axis.text=element_text(size=9),legend.title=element_text(size=10), 
@@ -257,17 +271,18 @@ for (i in 1:length(laml.titvlist))
   # p2<-p2+stat_compare_means(aes(group = classType), label = "p.format",size = 2)
    
    
-   p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType,shape=as.factor(classType)),alpha=1,size=0.3, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
+   p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
  legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
    
    
-  # p2<-recordPlot()
+ #p2<-recordPlot()
    dev.off()
    
    
   
    pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
-   save_plot("AllPatients/TiTV/TiVSTvBothgrey.pdf", pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
+   save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
+   
    
    
  #  ggarrange(p1,p2 , 
@@ -444,5 +459,5 @@ ggbarplot(cohortsFigureU, x = "Gene.Name", y = "value",
           ggtheme = theme_minimal()
 )
 
-
+#After migration
  
