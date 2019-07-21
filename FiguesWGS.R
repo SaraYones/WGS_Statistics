@@ -7,6 +7,7 @@ library(stringr)
 library(cowplot)
 library(ggplot2)
 library("RColorBrewer")
+library(ggplotify)
 #For ggarrange
 library("gridExtra")
 library("ggpubr")
@@ -25,6 +26,7 @@ mutations=fread("20190507_AML_WGS_Strelka_proteincoding.csv",header=TRUE)
 mutationsAll=fread("AML_WGS_Strelka_Filtered.csv",header=TRUE)
 mutations2=fread("genome.wustl.edu_LAML.IlluminaGA_DNASeq.Level_2.2.13.0.somatic.maf",header=TRUE)
 purest_R=fread("PurestR.csv",header=TRUE)
+purest_R_matched=fread("MatchedPurestR.csv",header=TRUE)
 Unpaired=fread("MEAndCooccurence.csv",header=TRUE)
 Unpaired_LatestD=Unpaired$`Unpaired: All D (WGS and WES)`
 Unpaired_LatestR=Unpaired$`Unpaired: All latest  R (WGS and WES)`
@@ -60,8 +62,29 @@ mutationsAll$Tumor_Sample_Barcode=paste(mutationsAll$Tumor_Sample_Barcode,"-",mu
 #mutationDiagnosis=mutationsAll[mutationsAll[,"sample"]=="D",]
 mutationDiagnosisPC=mutations[mutations$Tumor_Sample_Barcode %in% Unpaired_LatestD,]
 mutationRelapsePC=mutations[mutations$Tumor_Sample_Barcode %in% Unpaired_LatestR,]
+
+#Purest Relapse Unmatched
 mutationRelapse=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$PuresetRelapse,]
 mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$DiagnosisCases,]
+
+#Purest Relapse Matched
+mutationRelapse=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$PuresetRelapse,]
+mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$DiagnosisCases,]
+
+cases_D=mutationDiagnosis$Tumor_Sample_Barcode
+cases_D=unlist(strsplit(cases_D,"-D"))
+mutationDiagnosis=as.data.frame(cbind(mutationDiagnosis,cases_D))
+cases_R=mutationRelapse$Tumor_Sample_Barcode
+cases_R=gsub("(AML[0-9][0-9][0-9])-.*","\\1",mutationRelapse$Tumor_Sample_Barcode)
+mutationRelapse=as.data.frame(cbind(mutationRelapse,cases_R))
+mutationRelapse=as.data.table(mutationRelapse)
+
+setkey(mutationRelapse,cases_R,Chromosome,Hugo_Symbol,Start_Position,End_Position,Reference_Allele,Tumor_Seq_Allele2)
+
+index=mutationRelapse[.(mutationDiagnosis$cases_D,mutationDiagnosis$Chromosome,mutationDiagnosis$Hugo_Symbol,mutationDiagnosis$Start_Position,mutationDiagnosis$End_Position,mutationDiagnosis$Reference_Allele,mutationDiagnosis$Tumor_Seq_Allele2),which=TRUE]
+notNA=!is.na(mutationRelapse[.(mutationDiagnosis$cases_D,mutationDiagnosis$Chromosome,mutationDiagnosis$Hugo_Symbol,mutationDiagnosis$Start_Position,mutationDiagnosis$End_Position,mutationDiagnosis$Reference_Allele,mutationDiagnosis$Tumor_Seq_Allele2),which=TRUE])
+index=unique(index[which(notNA)])
+mutationRelapse=mutationRelapse[-index,]
 
 
 laml = read.maf(maf = mutations,useAll = TRUE)
