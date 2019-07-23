@@ -40,6 +40,7 @@ mutationRelapse=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$Pur
 mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$DiagnosisCases,]
 
 #Purest Relapse Matched
+mutationsAll$Variant_Classification=rep("Missense_Mutation",dim(mutationsAll)[1])
 mutationRelapse=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$PuresetRelapse,]
 mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$DiagnosisCases,]
 
@@ -60,7 +61,6 @@ mutationRelapse=mutationRelapse[-index,]
 
 
 laml = read.maf(maf = mutations,useAll = TRUE)
-mutationsAll$Variant_Classification=rep("Missense_Mutation",dim(mutationsAll)[1])
 lamlAll = read.maf(maf = mutationsAll,useAll = TRUE)
 lamlDiagnosis=read.maf(maf = mutationDiagnosis,useAll = TRUE)
 lamlRelapse=read.maf(maf = mutationRelapse,useAll = TRUE)
@@ -269,6 +269,11 @@ require(ggplot2)
 
 p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
                                                                                                                                                                                                                                                                                                                                                                                             legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
+#Show only transversions
+df.mFraction=df.mFraction[df.mFraction$variable=="Tv",]
+
+p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
+                                                                                                                                                                                                                                                                                                                                                                                            legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
 
 
 #p2<-recordPlot()
@@ -278,7 +283,8 @@ dev.off()
 
 pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
 save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
-
+#For only transversions plot without aspect ratio
+save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1)
 
 
 #  ggarrange(p1,p2 , 
