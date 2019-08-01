@@ -3,8 +3,9 @@
 #convert("AML_WGS_Strelka_Filtered.xlsx", "AML_WGS_Strelka_Filtered.csv")
 mutations=fread("20190507_AML_WGS_Strelka_proteincoding.csv",header=TRUE)
 mutationsAll=fread("AML_WGS_Strelka_Filtered.csv",header=TRUE)
-
-
+cases_A_P=read.xlsx("Adult_and_pediatric_cases.xlsx",header=TRUE,sheetName="Sheet1")
+cases_A=cases_A_P$Adult.cases
+cases_P=cases_A_P$Pediatriccases
 mutations=as.data.frame(mutations)
 mutations2=as.data.frame(mutations2)
 mutationsAll=as.data.frame(mutationsAll)
@@ -16,6 +17,7 @@ meta_data=meta_data[order(meta_data$"Age at AML onset (Years)"),]
 meta_data$`Sample ID`=str_replace(meta_data$`Sample ID`, "_", "-")
 meta_data=as.data.frame(meta_data)
 
+
 #Some trials to change the values in a col but it worked with within function
 #apply(as.data.frame(mutations[which(mutations[,"Variant_Classification"]=="frameshift_variant"),]),1, function(x) if(x["Variant_Type"]=="INS") {x["Variant_Classification"]="Frame_Shift_Ins"} else if(x["Variant_Type"]=="DEL") {x["Variant_Classification"]="Frame_Shift_Del"})
 #hello=apply(mutations,1, function(x) if(x["Variant_Type"]=="INS") {x["Variant_Classification"]="Frame_Shift_Ins"} else if(x["Variant_Type"]=="DEL") {x["Variant_Classification"]="Frame_Shift_Del"})
@@ -24,6 +26,14 @@ meta_data=as.data.frame(meta_data)
 mutations<-within(mutations, Variant_Classification[Variant_Type=='INS' & Variant_Classification=='frameshift_variant'] <- 'Frame_Shift_Ins')
 mutations<-within(mutations, Variant_Classification[Variant_Type=='DEL' & Variant_Classification=='frameshift_variant'] <- 'Frame_Shift_Del')
 
+mutations_Adults=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% cases_A,]
+mutations_Pediatric=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% cases_P,]
+mutationsAlltemp=mutationsAll
+mutationsAll=mutations_Pediatric
+mutationsAll=mutations_Adults
+
+#return back to mutationsAll
+mutationsAll=mutationsAlltemp
 #Combine Names of tumor sample barcode to also include if its D or R to appear on titv 
 mutations$Tumor_Sample_Barcode_temp=mutations$Tumor_Sample_Barcode
 mutations$Tumor_Sample_Barcode=paste(mutations$Tumor_Sample_Barcode,"-",mutations$sample,sep="")
@@ -213,10 +223,11 @@ require(ggplot2)
 
 #To add whisker bars we use stat_boxplot and make size so small to see the dots from behind   
 #Format p-values to include only 3 significant figures.
-p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
+p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
-  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10), 
+  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10),legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType,label=sprintf("p = %5.2f", as.numeric(..p.format..))),label.y = 85,label.x.npc="middle",size = 2)
 
+                   
 
 
 #dont format the pvalues 
@@ -292,7 +303,7 @@ dev.off()
 pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
 save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
 #For only transversions plot without aspect ratio
-save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1)
+save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey_Pediatric","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1)
 
 
 #  ggarrange(p1,p2 , 

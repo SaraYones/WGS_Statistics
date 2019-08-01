@@ -41,9 +41,9 @@ mutationDiagnosisPC=mutations[mutations$Tumor_Sample_Barcode %in% Unpaired_Lates
 mutationRelapsePC=mutations[mutations$Tumor_Sample_Barcode %in% Unpaired_LatestR,]
 #-------------------------------------------------------------------------------
 mutationDiagnosisPediatric=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% PediatricMECO$PediatricDiagnosis,]
-mutationRelapsePediatric=mutations[mutationsMECO$Tumor_Sample_Barcode %in% PediatricMECO$PediatricRelapse,]
+mutationRelapsePediatric=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% PediatricMECO$PediatricRelapse,]
 mutationDiagnosisAdult=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% AdultsMECO$AdultDiagnosis,]
-mutationRelapseAdult=mutations[mutationsMECO$Tumor_Sample_Barcode %in% AdultsMECO$AdultRelapse,]
+mutationRelapseAdult=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% AdultsMECO$AdultRelapse,]
 
 mutationDiagnosisAll=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% append(levels(PediatricMECO$PediatricDiagnosis),levels(AdultsMECO$AdultDiagnosis)),]
 mutationRelapseAll=mutationsMECO[mutationsMECO$Tumor_Sample_Barcode %in% append(levels(PediatricMECO$PediatricRelapse),levels(AdultsMECO$AdultRelapse)),]
