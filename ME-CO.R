@@ -1,3 +1,7 @@
+install.packages("remotes")
+remotes::install_github("gmelloni/PrecisionTrialDrawer")
+
+
 #mutationsAll=fread("AML_WGS_Strelka_Filtered.csv",header=TRUE)
 mutationsMECO=fread("Genes_IDs_ME_and_Co_occurrence_190717.csv",header=TRUE)
 Unpaired=fread("MEAndCooccurence.csv",header=TRUE)
@@ -59,35 +63,45 @@ recurrent_genes=unique(mutationsMECO$Hugo_Symbol)
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
-somaticInteractions(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractions(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+
 dev.off()
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapsePediatric","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
+#somaticInteractions(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
 
-somaticInteractions(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
 dev.off()
 
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_DiagosisAdult","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
-somaticInteractions(maf = lamlDiagnosisAdult,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractions(maf = lamlDiagnosisAdult,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlDiagnosisAdult,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+
 dev.off()
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapseAdult","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
+#somaticInteractions(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
 
-somaticInteractions(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
 dev.off()
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_DiagosisAll","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
-somaticInteractions(maf = lamlDiagnosisAll,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractions(maf = lamlDiagnosisAll,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlDiagnosisAll,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+
 dev.off()
 
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapseAll","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 
-somaticInteractions(maf = lamlRelapseAll, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractions(maf = lamlRelapseAll, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlRelapseAll, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+
 dev.off()
 
