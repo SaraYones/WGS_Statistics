@@ -25,12 +25,21 @@ meta_data=as.data.frame(meta_data)
 #Changing a the value of frameshift_Variant in Variant_Classification col to Frame_Shift_Ins based on the Variant Type
 mutations<-within(mutations, Variant_Classification[Variant_Type=='INS' & Variant_Classification=='frameshift_variant'] <- 'Frame_Shift_Ins')
 mutations<-within(mutations, Variant_Classification[Variant_Type=='DEL' & Variant_Classification=='frameshift_variant'] <- 'Frame_Shift_Del')
-
+#Comparison between Adults (D vs R)
 mutations_Adults=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% cases_A,]
+#Comparison between Pediatric (D vs R)
 mutations_Pediatric=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% cases_P,]
+#Comparison between Adults /Pediatric (D vs D)
+
+#in this comparison i wont do the filteration here but in the part of the script that defines mutationDiagnosis and mutationRelapse
+#mutations_A_P_Diagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% append(levels(cases_A_P$Adult.cases),levels(cases_A_P$Pediatriccases)),]
+#mutations_A_P_Diagnosis=mutations_A_P_Diagnosis[mutations_A_P_Diagnosis$sample=="D",]
+
 mutationsAlltemp=mutationsAll
+
 mutationsAll=mutations_Pediatric
 mutationsAll=mutations_Adults
+#mutationsAll=mutations_A_P_Diagnosis
 
 #return back to mutationsAll
 mutationsAll=mutationsAlltemp
@@ -53,7 +62,26 @@ mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$D
 mutationsAll$Variant_Classification=rep("Missense_Mutation",dim(mutationsAll)[1])
 mutationRelapse=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$PuresetRelapse,]
 mutationDiagnosis=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R_matched$DiagnosisCases,]
+#Comparison (D VS D)
+#mutationsAll=mutationsAll[mutationsAll$sample=="D",]
+mutationsAll=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$DiagnosisCases,]
+#Comparison (R VS R)
+mutationsAll=mutationsAll[mutationsAll$Tumor_Sample_Barcode %in% purest_R$PuresetRelapse,]
+#mutationsAll=mutationsAll[mutationsAll$sample!="D",]
+#Comparison (D VS D)
+mutationDiagnosisAdult=mutationsAll[mutationsAll$Tumor_Sample_Barcode_temp %in% cases_A ,]
+mutationDiagnosisPediatric=mutationsAll[mutationsAll$Tumor_Sample_Barcode_temp %in% cases_P ,]
+#Comparison (R VS R)
 
+mutationRelapseAdult=mutationsAll[mutationsAll$Tumor_Sample_Barcode_temp %in% cases_A ,]
+mutationRelapseAdult=filterVariants(mutationDiagnosisAdult,mutationRelapseAdult)
+mutationRelapsePediatric=mutationsAll[mutationsAll$Tumor_Sample_Barcode_temp %in% cases_P ,]
+mutationRelapsePediatric=filterVariants(mutationDiagnosisPediatric,mutationRelapsePediatric)
+
+
+filterVariants=function(mutationDiagnosis,mutationRelapse)
+{
+  
 cases_D=mutationDiagnosis$Tumor_Sample_Barcode
 cases_D=unlist(strsplit(cases_D,"-D"))
 mutationDiagnosis=as.data.frame(cbind(mutationDiagnosis,cases_D))
@@ -69,11 +97,23 @@ notNA=!is.na(mutationRelapse[.(mutationDiagnosis$cases_D,mutationDiagnosis$Chrom
 index=unique(index[which(notNA)])
 mutationRelapse=mutationRelapse[-index,]
 
+return(mutationRelapse)
+}
 
 laml = read.maf(maf = mutations,useAll = TRUE)
 lamlAll = read.maf(maf = mutationsAll,useAll = TRUE)
 lamlDiagnosis=read.maf(maf = mutationDiagnosis,useAll = TRUE)
 lamlRelapse=read.maf(maf = mutationRelapse,useAll = TRUE)
+#Comparison (D VS D)
+lamlDiagnosisAdults=read.maf(maf = mutationDiagnosisAdult,useAll = TRUE)
+lamlDiagnosisPediatric=read.maf(maf = mutationRelapsePediatric,useAll = TRUE)
+
+#Comparison (R VS R)
+lamlRelapseAdults=read.maf(maf = mutationRelapseAdult,useAll = TRUE)
+lamlRelapsePediatric=read.maf(maf = mutationRelapsePediatric,useAll = TRUE)
+
+
+
 lamlDiagnosisPC=read.maf(maf = mutationDiagnosisPC,useAll = TRUE)
 lamlRelapsePC=read.maf(maf = mutationRelapsePC,useAll = TRUE)
 
@@ -92,8 +132,17 @@ laml.titv = titv(maf = laml, plot = FALSE, useSyn = TRUE)
 laml.titv2 = titv(maf = laml2, plot = FALSE, useSyn = TRUE)
 laml.titvAll = titv(maf = lamlAll, plot = FALSE, useSyn = TRUE)
 laml.titvAll = titv(maf = lamlAll, plot = FALSE, useSyn = TRUE)
+#Comparisons(D V R)
 laml.titvDiagnosis=titv(maf = lamlDiagnosis, plot = FALSE, useSyn = TRUE)
 laml.titvRelapse=titv(maf = lamlRelapse, plot = FALSE, useSyn = TRUE)
+#Comparison (D vs D)
+laml.titvDiagnosisA=titv(maf = lamlDiagnosisAdults, plot = FALSE, useSyn = TRUE)
+laml.titvDiagnosisP=titv(maf = lamlDiagnosisPediatric, plot = FALSE, useSyn = TRUE)
+#Comparison (R vs R)
+laml.titvRelapseA=titv(maf = lamlRelapseAdults, plot = FALSE, useSyn = TRUE)
+laml.titvRelapseP=titv(maf = lamlRelapsePediatric, plot = FALSE, useSyn = TRUE)
+
+
 #plot titv summary
 
 pdf( "TiVSTvAll.pdf", onefile=TRUE)
@@ -191,6 +240,16 @@ ggarrange(myplots[[1]],myplots[[2]] ,
 pdf( "AllPatients/TiTV/TiVSTvBoth.pdf", onefile=TRUE)
 classType=append(rep("D",dim(as.data.frame(laml.titvDiagnosis))[1]),rep("R",dim(as.data.frame(laml.titvRelapse))[1]))
 figureTitv=rbind(as.data.frame(laml.titvDiagnosis),as.data.frame(laml.titvRelapse))
+#Comparison (D vs D)
+classType=append(rep("D-Adults",dim(as.data.frame(laml.titvDiagnosisA))[1]),rep("D-Pediatric",dim(as.data.frame(laml.titvDiagnosisP))[1]))
+figureTitv=rbind(as.data.frame(laml.titvDiagnosisA),as.data.frame(laml.titvDiagnosisP))
+#Comparison(R vs R)
+classType=append(rep("R-Adults",dim(as.data.frame(laml.titvRelapseA))[1]),rep("R-Pediatric",dim(as.data.frame(laml.titvRelapseP))[1]))
+figureTitv=rbind(as.data.frame(laml.titvRelapseA),as.data.frame(laml.titvRelapseP))
+#Comparisons (D vs R)
+
+
+
 figureTitv=as.data.frame(figureTitv)
 figureTitv$classType=classType
 figureTitv=figureTitv[,c("classType","fraction.contribution.C.A","fraction.contribution.C.G","fraction.contribution.C.T","fraction.contribution.T.C","fraction.contribution.T.A","fraction.contribution.T.G")]
@@ -225,7 +284,7 @@ require(ggplot2)
 #Format p-values to include only 3 significant figures.
 p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
-  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10),legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType,label=sprintf("p = %5.2f", as.numeric(..p.format..))),label.y = 85,label.x.npc="middle",size = 2)
+  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10),legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType,label=sprintf("p = %5.4f", as.numeric(..p.format..))),label.y = 105,label.x.npc="middle",size = 2)
 
                    
 
@@ -234,7 +293,7 @@ p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.siz
 p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
   scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10), 
-                           legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 85,label.x.npc="middle",size = 2,  label = "p.format")
+                           legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 105,label.x.npc="middle",size = 2,  label = "p.format")
 
 #p1<-recordPlot()
 #Using the package of the box plots
@@ -272,6 +331,13 @@ p1<-p1+theme(legend.title = element_blank())+labs(x = "")+labs(y = "")+scale_fil
 #------------Plot Fractions-------------------------------------------------
 
 figureTitvFraction=rbind(as.data.frame(laml.titvDiagnosis)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")],as.data.frame(laml.titvRelapse)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")])
+#Comparison (D vs D)
+figureTitvFraction=rbind(as.data.frame(laml.titvDiagnosisA)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")],as.data.frame(laml.titvDiagnosisP)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")])
+#Comparison (R vs R)
+figureTitvFraction=rbind(as.data.frame(laml.titvRelapseA)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")],as.data.frame(laml.titvRelapseP)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")])
+
+
+
 figureTitvFraction$classType=classType
 colnames(figureTitvFraction)<-c("Ti","Tv", "classType")
 df.mFraction <- melt(figureTitvFraction, id.var = "classType")
@@ -303,7 +369,7 @@ dev.off()
 pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
 save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
 #For only transversions plot without aspect ratio
-save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey_Pediatric","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1)
+save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey_Relapse","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1)
 
 
 #  ggarrange(p1,p2 , 
