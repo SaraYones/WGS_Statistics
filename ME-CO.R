@@ -68,6 +68,16 @@ somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, p
 
 dev.off()
 
+#Higher resolution image tiff
+tiff(paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".tiff"), units="in", width=10, height=10,res=100)
+somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+
+dev.off()
+
+#dev.off()
+save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
+
+
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapsePediatric","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 #somaticInteractions(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)

@@ -331,17 +331,17 @@ require(ggplot2)
 
 #To add whisker bars we use stat_boxplot and make size so small to see the dots from behind   
 #Format p-values to include only 3 significant figures.
-p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75))
+p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75))+scale_y_continuous(breaks = seq(0, 60, by=15), limits=c(0,60))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
-  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10),legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType,label=sprintf("p = %5.4f", as.numeric(..p.format..))),label.y = 105,paired = FALSE ,label.x.npc="middle",size = 2)
+  scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=8),legend.title=element_text(size=10),legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "Frequency of substitutions")+stat_compare_means(aes(group = classType,label=sprintf("p = %5.4f", as.numeric(..p.format..))),label.y = 105,paired = FALSE ,label.x.npc="middle",size = 2)
 
                    
 
 
 #dont format the pvalues 
-p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
+p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))+scale_y_continuous(breaks = seq(0, 60, by=15), limits=c(0,60))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10), 
-                           legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 105,paired=FALSE,label.x.npc="middle",size = 2,  label = "p.format")
+                           legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "Frequency of substitutions")+stat_compare_means(aes(group = classType),label.y = 105,paired=FALSE,label.x.npc="middle",size = 2,  label = "p.format")
 
 #p1<-recordPlot()
 #Using the package of the box plots
@@ -400,25 +400,35 @@ require(ggplot2)
 # p2<-p2+stat_compare_means(aes(group = classType), label = "p.format",size = 2)
 
 
-p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
-                                                                                                                                                                                                                                                                                                                                                                                            legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
+p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+scale_y_continuous(breaks = seq(0, 80, by=15), limits=c(0,80))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
+                                                                                                                                                                                                                                                                                                                                                                                            legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "Relapse/adult vs pediatric")+labs(y = "Transversion frequency")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
 #Show only transversions
 df.mFraction=df.mFraction[df.mFraction$variable=="Tv",]
+df.mFraction$variable=as.character(df.mFraction$variable)
+#Change it according to the plot
+df.mFraction=df.mFraction %>% 
+  mutate(variable= replace(variable, variable  == 'Tv', "Relapse/adult vs pediatric"))
 
-p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=9), axis.title=element_text(size=12),legend.title=element_text(size=10), 
-                                                                                                                                                                                                                                                                                                                                                                                            legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
+df.mFraction=df.mFraction %>% 
+  mutate(variable= replace(variable, variable  == 'Relapse/adult vs pediatric', "Tv"))
+
+#FacetWrap helped me implement the last suggestion of Svea to defina the box plot for adult and pediatric for the transversions part
+
+p2<-ggplot(data =  df.mFraction,aes(x=variable, y=value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+scale_y_continuous(breaks = seq(0, 80, by=15), limits=c(0,80))+geom_boxplot(aes(fill=classType),alpha=0.3,outlier.size = 0,lwd=0.1)+theme_bw() +geom_point(aes(y=value, group=classType),alpha=1,size=0.2, position = position_dodge(width=0.75)) +scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=8),legend.title=element_text(size=10), 
+                                                                                                                                                                                                                                                                                                                                                                                            legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "Transversion frequency")+facet_wrap(~ classType)+stat_compare_means(aes(group = classType), label = "p.format",label.y=85,label.x.npc="middle",size = 2)
 
 
 #p2<-recordPlot()
 dev.off()
 
+#In case i use tiff it should be called first and then plot_grid is called without assigning it to a variable then afterwards dev.off()
+#If i want to use save_plot then dev off first then pcombined then save plot 
+tiff(paste("AllPatients/TiTV/TiVSTvBothgrey_DRAdultTrial1","-",Sys.Date(),".tiff"), units="in", width=10, height=5, res=400)
+pcombined<-plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
 
-
-pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
+#dev.off()
 save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
 #For only transversions plot without aspect ratio
-tiff(paste("AllPatients/TiTV/TiVSTvBothgrey_DiagnosisTrial1","-",Sys.Date(),".tiff"), units="in", width=10, height=5, res=600)
-
 
 #bitmap(paste("AllPatients/TiTV/TiVSTvBothgrey_DiagnosisTrial2","-",Sys.Date(),".tiff"), height = 4, width = 4, units = 'in', type="tifflzw", res=300)
 pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="AUTO",label_size = 10)
@@ -426,7 +436,7 @@ pcombined <- plot_grid( as.grob(as.ggplot(p1)), as.grob(as.ggplot(p2)), labels="
 dev.off()
 
 
-save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey_DiagnosisTrial","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,resolution(300))
+save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey_DiagnosisTrial","-",Sys.Date(),".pdf",sep=""),pcombined ,resolution(600))
 
 
 #  ggarrange(p1,p2 , 

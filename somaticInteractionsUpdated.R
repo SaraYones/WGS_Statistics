@@ -1,3 +1,4 @@
+#updated color panel , corrected co-occurence, updated the size of the dots and stars, updated the margins 
 #' Exact tests to detect mutually exclusive, co-occuring and altered genesets.
 #'
 #' @description Performs Pair-wise Fisher's Exact test to detect mutually exclusive or co-occuring events. Also identifies gene sets mutated significantly.
@@ -19,7 +20,7 @@
 #' @return list of data.tables
 #' @export
 
-somaticInteractionsUpdated = function(maf, top = 25, genes = NULL, pvalue = c(0.05, 0.01), returnAll = FALSE, findPathways = TRUE, kMax = 3, fontSize = 0.8, verbose = TRUE){
+somaticInteractionsUpdated = function(maf, top = 25, genes = NULL, pvalue = c(0.05, 0.01), returnAll = FALSE, findPathways = TRUE, kMax = 3, fontSize = 1.5, verbose = TRUE){
   
   if(is.null(genes)){
     genes = getGeneSummary(x = maf)[1:top, Hugo_Symbol]
@@ -103,39 +104,42 @@ somaticInteractionsUpdated = function(maf, top = 25, genes = NULL, pvalue = c(0.
     
     print(interactions)
     
-    par(bty="n", mgp = c(2,.5,0), mar = c(2, 4, 3, 5)+.1, las=2, tcl=-.33)
-    image(x=1:n, y=1:m, interactions, col=RColorBrewer::brewer.pal(9,"PiYG"),
+    par(bty="n", mgp = c(2,.5,0), mar = c(2, 9, 4, 7)+.1, las=2, tcl=-.33)
+    image(x=1:n, y=1:m, interactions, col=RColorBrewer::brewer.pal(9,"BrBG"),
           breaks = c(-4:0-.Machine$double.eps,0:4), xaxt="n", yaxt="n",
           xlab="",ylab="", xlim=c(0, n+4), ylim=c(0, n+4))
     abline(h=0:n+.5, col="white", lwd=.5)
     abline(v=0:n+.5, col="white", lwd=.5)
     
-    mtext(side = 2, at = 1:m, text = colnames(interactions), cex = fontSize, font = 3)
-    mtext(side = 3, at = 1:n, text = colnames(interactions), las = 2, line = -2, cex = fontSize, font = 3)
+   # mtext(side = 2, at = 1:m, text = colnames(interactions), las = 2, line = -0.8,cex = fontSize, font = 3)
+  #  mtext(side = 3, at = 1:n, text = colnames(interactions), las = 2, line = -4.5, cex = fontSize, font = 3)
     
-    #q <- p.adjust(10^-abs(interactions), method="BH")
-    #p <- p.adjust(10^-abs(interactions), method="holm")
-    #w = arrayInd(which(interactions < .05), rep(m,2))
-    #points(w, pch=".", col="white", cex=1.5)
+     mtext(side = 2, at = 1:m, text = colnames(interactions), las = 2,cex = fontSize, font = 3)
+     mtext(side = 3, at = 1:n, text = colnames(interactions),line = -5, las = 2, cex = fontSize, font = 3)
+    
+    q <- p.adjust(10^-abs(interactions), method="BH")
+    p <- p.adjust(10^-abs(interactions), method="holm")
+  #  w = arrayInd(which(interactions < .05), rep(m,2))
+  #  points(w, pch=".", col="white", cex=1.5)
     w = arrayInd(which(10^-abs(interactions) < min(pvalue)), rep(m,2))
-    points(w, pch="*", col="black")
+    points(w, pch="*", col="black",cex=2)
     w = arrayInd(which(10^-abs(interactions) < max(pvalue)), rep(m,2))
-    points(w, pch=".", col="black")
+    points(w, pch=".", col="black",cex=4)
     #image(y = 1:8 +6, x=rep(n,2)+c(2,2.5)+1, z=matrix(c(1:8), nrow=1), col=brewer.pal(8,"PiYG"), add=TRUE)
-    image(y = seq(0.5*nrow(interactions), 0.9*nrow(interactions), length.out = 8), x=rep(n,2)+c(2,2.5)+1, z=matrix(c(1:8), nrow=1), col = RColorBrewer::brewer.pal(8,"PiYG"), add=TRUE)
+    image(y = seq(0.5*nrow(interactions), 0.9*nrow(interactions), length.out = 8), x=rep(n,2)+c(2,2.5)+1, z=matrix(c(1:8), nrow=1), col = RColorBrewer::brewer.pal(8,"BrBG"), add=TRUE)
     #axis(side = 4, at = seq(1,7) + 6.5,  tcl=-.15, label=seq(-3, 3), las=1, lwd=.5)
     atLims = seq(0.5*nrow(interactions), 0.9*nrow(interactions), length.out = 7)
     axis(side = 4, at = atLims,  tcl=-.15, labels =c(3:1, 0, 1:3), las=1, lwd=.5)
-    mtext(side=4, at = median(atLims), "-log10 (p-value)", las=3, cex = 0.9, line = 3, font = 2)
+    mtext(side=4, at = median(atLims), "-log10 (p-value)", las=3, cex = 1.5, line = 3, font = 1)
     
     par(xpd=NA)
-    text(x=n+1.8, y= max(atLims)+1.4, "Co-occurrence", pos=4, cex = 0.9, font = 2)
-    text(x=n+1.8, y = min(atLims)-1.4, "Mutual Exclusion", pos=4, cex = 0.9, font = 2)
+    text(x=n+1.8, y= max(atLims)+1.4, "Co-occurrence", pos=4, cex = 1.5, font = 1)
+    text(x=n+1.8, y = min(atLims)-1.4, "Mutual Exclusion", pos=4, cex = 1.5, font = 1)
     
     points(x = n+1, y = 0.2*n, pch = "*", cex = 2)
-    text(x = n+1, y = 0.2*n, paste0(" p < ", min(pvalue)), pos=4, cex = 0.9, font = 2)
-    points(x = n+1, y = 0.1*n, pch = ".", cex = 2)
-    text(x = n+1, y = 0.1*n, paste0("p < ", max(pvalue)), pos=4, cex = 0.9)
+    text(x = n+1, y = 0.2*n, paste0(" p < ", min(pvalue)), pos=4, cex = 1.5, font = 1)
+    points(x = n+1, y = 0.1*n, pch = ".", cex = 6)
+    text(x = n+1, y = 0.1*n, paste0("p < ", max(pvalue)), pos=4, cex = 1.5, font=1)
   }
   
   

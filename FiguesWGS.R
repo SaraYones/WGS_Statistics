@@ -19,6 +19,8 @@ library(grid)
 library(gridExtra)
 #For legends
 library(lemon)
+#For substituting values in a coloumn
+library(dplyr)
 
 #Convert from xlsx to CSV
 #convert("AML_WGS_Strelka_Filtered.xlsx", "AML_WGS_Strelka_Filtered.csv")
@@ -239,10 +241,10 @@ for (i in 1:length(laml.titvlist))
 #Best Fit   
    
 #To add whisker bars we use stat_boxplot and make size so small to see the dots from behind   
-p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
+p1<-ggplot(data = df.m,aes(x = fct_reorder(variable, value,.desc=TRUE), y = value,fill=classType))+stat_boxplot( geom='errorbar', linetype=1,size =0.1, width=0.5,position = position_dodge(width=0.75))+scale_y_continuous(breaks = seq(0, 60, by=15), limits=c(0,60))+theme_bw()+ geom_point(aes(y=value, group=classType,legend=FALSE),alpha=1,size=0.2, position = position_dodge(width=0.75))
 p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.size=0,lwd=0.1,stat = "boxplot")+
    scale_fill_grey() +theme(axis.text=element_text(size=8), axis.title=element_text(size=12),legend.title=element_text(size=10), 
- legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 85,label.x.npc="middle",size = 2,  label = "p.format")
+ legend.text=element_text(size=9))+theme(legend.title = element_blank())+labs(x = "")+labs(y = "% mutation")+stat_compare_means(aes(group = classType),label.y = 60,label.x.npc="middle",size = 2,  label = "p.format")
    
 #p1<-recordPlot()
 #Using the package of the box plots
@@ -280,7 +282,10 @@ p1<-p1+geom_boxplot(inherit.aes = TRUE,aes(fill=classType),alpha=0.3,outlier.siz
    #------------Plot Fractions-------------------------------------------------
    
    figureTitvFraction=rbind(as.data.frame(laml.titvDiagnosis)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")],as.data.frame(laml.titvRelapse)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")])
-   figureTitvFraction$classType=classType
+    #Comparison (D VS D)
+   figureTitvFraction=rbind(as.data.frame(laml.titvDiagnosisA)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")],as.data.frame(laml.titvDiagnosisP)[,c("TiTv.fractions.Ti","TiTv.fractions.Tv")])
+
+    figureTitvFraction$classType=classType
    colnames(figureTitvFraction)<-c("Ti","Tv", "classType")
    df.mFraction <- melt(figureTitvFraction, id.var = "classType")
    
