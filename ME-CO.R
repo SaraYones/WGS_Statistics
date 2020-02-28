@@ -4,6 +4,11 @@ remotes::install_github("gmelloni/PrecisionTrialDrawer")
 
 #mutationsAll=fread("AML_WGS_Strelka_Filtered.csv",header=TRUE)
 mutationsMECO=fread("Genes_IDs_ME_and_Co_occurrence_190717.csv",header=TRUE)
+mutations<-within(mutations, Variant_Classification[Variant_Type=='INS' & Variant_Classification=='frameshift_variant'] <- 'Frame_Shift_Ins')
+mutationsMECO=as.data.frame(mutationsMECO)
+mutationsMECO[which(grepl("FLT3(-.*)?",mutationsMECO[,"Hugo_Symbol"])),"Hugo_Symbol"]<-"FLT3"
+mutationsMECO[which(grepl("KMT2A(-.*)?",mutationsMECO[,"Hugo_Symbol"])),"Hugo_Symbol"]<-"KMT2A"
+
 Unpaired=fread("MEAndCooccurence.csv",header=TRUE)
 
 PediatricMECO=read.xlsx("MEAndCooccurence.xlsx",sheetName = "Pediatric",header=TRUE)
@@ -64,39 +69,50 @@ recurrent_genes=unique(mutationsMECO$Hugo_Symbol)
 
 pdf( paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 #somaticInteractions(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
-somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
 
 dev.off()
 
 #Higher resolution image tiff
-tiff(paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".tiff"), units="in", width=10, height=10,res=100)
+tiff(paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".tiff"), units="in", width=13, height=13,res=400)
 somaticInteractionsUpdated(maf = lamlDiagnosisPediatric,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+DiagnosisPediatric=somaticInteractionsnew(maf =lamlDiagnosisPediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
+somaticInteractions(maf =lamlDiagnosisPediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
 
+write.csv(DiagnosisPediatric,paste("AllPatients/MEAndCooccurrence/ME_DiagosisPediatric","-",Sys.Date(),".csv"),row.names=TRUE)
 dev.off()
 
 #dev.off()
 save_plot(paste("AllPatients/TiTV/TiVSTvBothgrey","-",Sys.Date(),".pdf",sep=""),pcombined, ncol = 2,nrow=1,base_aspect_ratio=1.1)
 
 
-
+tiff(paste("AllPatients/MEAndCooccurrence/ME_RelapsePediatric","-",Sys.Date(),".tiff"), units="in", width=13, height=13,res=400)
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapsePediatric","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 #somaticInteractions(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+RelapsePediatric=somaticInteractionsnew(maf =lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
+
 somaticInteractionsUpdated(maf = lamlRelapsePediatric, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+write.csv(RelapsePediatric,paste("AllPatients/MEAndCooccurrence/ME_RelapsePediatric","-",Sys.Date(),".csv"),row.names=TRUE)
+
 
 dev.off()
 
 
-
+tiff(paste("AllPatients/MEAndCooccurrence/ME_DiagosisAdult","-",Sys.Date(),".tiff"), units="in", width=13, height=13,res=400)
 pdf( paste("AllPatients/MEAndCooccurrence/ME_DiagosisAdult","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 #somaticInteractions(maf = lamlDiagnosisAdult,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
 somaticInteractionsUpdated(maf = lamlDiagnosisAdult,genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
-
+DiagnosisAdult=somaticInteractionsnew(maf =lamlDiagnosisAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
+write.csv(DiagnosisAdult,paste("AllPatients/MEAndCooccurrence/ME_DiagnosisAdult","-",Sys.Date(),".csv"),row.names=TRUE)
 dev.off()
 
-
+tiff(paste("AllPatients/MEAndCooccurrence/ME_RelapseAdult","-",Sys.Date(),".tiff"), units="in", width=13, height=13, res=400)
 pdf( paste("AllPatients/MEAndCooccurrence/ME_RelapseAdult","-",Sys.Date(),".pdf",sep=""), onefile=TRUE)
 #somaticInteractions(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
-somaticInteractionsUpdated(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractionsUpdated(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+#somaticInteractionsnew(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),returnAll = TRUE)
+RelapseAdult=somaticInteractionsnew(maf = lamlRelapseAdult, genes=recurrent_genes, pvalue = c(0.05, 0.1),fontSize=1.5,returnAll = TRUE)
+write.csv(RelapseAdult,paste("AllPatients/MEAndCooccurrence/ME_RelapseAdult","-",Sys.Date(),".csv"),row.names=TRUE)
 
 dev.off()
 
